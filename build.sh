@@ -23,18 +23,10 @@ while :; do
   shift
 done
 
-echo "Keeping container around after build: ${KEEP_CONTAINER}"
-echo "Additional flags: ${EMERGE_SOURCES}"
-
-DRIVER_VERSION=${1:-367.57}
-COREOS_TRACK=${2:-beta}
-COREOS_VERSION=${3:-1185.5.0}
-
-DRIVER_ARCHIVE=NVIDIA-Linux-x86_64-${DRIVER_VERSION}
-DRIVER_ARCHIVE_PATH=${PWD}/nvidia_installers/${DRIVER_ARCHIVE}.run
-DEV_CONTAINER=coreos_developer_container.bin.${COREOS_VERSION}
-WORK_DIR=pkg/run_files/${COREOS_VERSION}
-ORIGINAL_DIR=${PWD}
+function fail {
+  >&2 echo $1
+  finish
+}
 
 function onerr {
   echo Caught error
@@ -55,6 +47,28 @@ function finish {
   exit
 }
 
+echo "Keeping container around after build: ${KEEP_CONTAINER}"
+echo "Additional flags: ${EMERGE_SOURCES}"
+
+DRIVER_VERSION=${1:-375.39}
+COREOS_TRACK=${2:-stable}
+COREOS_VERSION=${3}
+
+if [ -z "${COREOS_VERSION}" ] && [ -f /etc/os-release ]; then
+  if [ "$(cat /etc/os-release | grep "^ID=" | cut -f2 -d=)" = "coreos" ]; then
+    COREOS_VERSION=$(cat /etc/os-release | grep "VERSION=" | cut -f2 -d=)
+  fi
+fi
+if [ -z "${COREOS_VERSION}" ]; then
+  fail "Could not automatically determine CoreOS version"
+fi
+
+DRIVER_ARCHIVE=NVIDIA-Linux-x86_64-${DRIVER_VERSION}
+DRIVER_ARCHIVE_PATH=${PWD}/nvidia_installers/${DRIVER_ARCHIVE}.run
+DEV_CONTAINER=coreos_developer_container.bin.${COREOS_VERSION}
+WORK_DIR=pkg/run_files/${COREOS_VERSION}
+ORIGINAL_DIR=${PWD}
+
 set -e
 trap onerr ERR
 trap onexit exit
@@ -67,7 +81,7 @@ then
     -z ${DEV_CONTAINER}.bz2 \
     -o ${DEV_CONTAINER}.bz2
   echo Decompressing
-  bunzip2 -k ${DEV_CONTAINER}.bz2
+  bunzip2 ${DEV_CONTAINER}.bz2
 fi
 
 if [ ! -f ${DRIVER_ARCHIVE_PATH} ]
@@ -104,3 +118,4 @@ sudo chown -R ${UID}:${GROUPS[0]} ${PWD}/${WORK_DIR}
 
 bash -x _export.sh ${WORK_DIR}/*-${DRIVER_VERSION} \
   ${DRIVER_VERSION} ${COREOS_VERSION}-${DRIVER_VERSION}
+
