@@ -51,7 +51,7 @@ echo "Keeping container around after build: ${KEEP_CONTAINER}"
 echo "Additional flags: ${EMERGE_SOURCES}"
 
 COREOS_TRACK_DEFAULT=stable
-COREOS_VERSION_DEFAULT=1298.6.0
+COREOS_VERSION_DEFAULT=1465.8.0
 # If we are on CoreOS by default build for the current CoreOS version
 if [[ -f /etc/lsb-release && -f /etc/coreos/update.conf ]]; then
     source /usr/share/coreos/release
@@ -61,7 +61,7 @@ if [[ -f /etc/lsb-release && -f /etc/coreos/update.conf ]]; then
     COREOS_VERSION_DEFAULT=$COREOS_RELEASE_VERSION
 fi
 
-DRIVER_VERSION=${1:-375.39}
+DRIVER_VERSION=${1:-384.90}
 COREOS_TRACK=${2:-$COREOS_TRACK_DEFAULT}
 COREOS_VERSION=${3:-$COREOS_VERSION_DEFAULT}
 
