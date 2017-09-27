@@ -21,4 +21,4 @@ tar -C ${ARTIFACT_DIR} -cvj ${TOOLS} > tools-${VERSION}.tar.bz2
 tar -C ${ARTIFACT_DIR}/kernel -cvj $(basename -a ${ARTIFACT_DIR}/kernel/*.ko) > modules-${COMBINED_VERSION}.tar.bz2
 
 # Package all archives
-tar -cv $(basename -a *.tar.bz2) > drivers-${COMBINED_VERSION}.tar
+tar -cv libraries-${VERSION}.tar.bz2 tools-${VERSION}.tar.bz2 modules-${COMBINED_VERSION}.tar.bz2 > drivers-${COMBINED_VERSION}.tar
